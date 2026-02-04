@@ -80,10 +80,15 @@ trait ControllerTrait
                 $uri = new Uri(Bootstrap::$WEBROOT . Bootstrap::$SUBURI);
                 $uri->addParam('_r', 'login');
 
-                if ($route && $hash) {
+                if ($route) {
                     $key = $configData->getPasswordSalt();
-                    $request->verifySignature($key);
+                    
+                    // Verify signature if hash is present
+                    if ($hash) {
+                        $request->verifySignature($key);
+                    }
 
+                    // Always preserve the original route, even without hash
                     $uri->addParam('from', $route);
 
                     $onRedirect->call($this, $uri->getUriSigned($key));
