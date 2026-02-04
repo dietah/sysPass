@@ -65,6 +65,24 @@ final class Installer extends Service
     const BUILD        = 22070201;
 
     /**
+     * Get the version text, preferring Docker environment variable if set
+     *
+     * @return string
+     */
+    public static function getVersionText()
+    {
+        // Check for Docker version environment variable
+        $dockerVersion = getenv('SYSPASS_VERSION');
+        
+        if ($dockerVersion !== false && !empty($dockerVersion)) {
+            return $dockerVersion;
+        }
+        
+        // Fall back to default version
+        return self::VERSION_TEXT;
+    }
+
+    /**
      * @var DatabaseSetupInterface
      */
     private $dbs;

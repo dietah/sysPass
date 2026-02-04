@@ -28,7 +28,7 @@
         <td class="valField">
             <div class="lowres-title"><?php echo __('sysPass version'); ?></div>
 
-            <?php printf('%s (%s)', Installer::VERSION_TEXT, Html::strongText(VersionUtil::getVersionStringNormalized())); ?>
+            <?php printf('%s (%s)', Installer::getVersionText(), Html::strongText(VersionUtil::getVersionStringNormalized())); ?>
             <br>
             <?php printf('Config: %s', $configData->getConfigVersion()); ?>
             <br>
