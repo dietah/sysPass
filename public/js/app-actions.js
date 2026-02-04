@@ -609,6 +609,7 @@ sysPass.Actions = function (log) {
 
                         $("#mpass").prop("disabled", false).val("");
                         $("#smpass").show();
+                        $("#mpass").focus();
                         break;
                     case 5:
                         sysPassApp.msg.out(json);
@@ -621,6 +622,7 @@ sysPass.Actions = function (log) {
 
                         $("#oldpass").prop("disabled", false).val("");
                         $("#soldpass").show();
+                        $("#oldpass").focus();
                         break;
                     default:
                         sysPassApp.msg.out(json);
