@@ -234,6 +234,31 @@ sysPass.Triggers = function (log) {
                 sysPassApp.util.focus($(this));
             }
         });
+
+        // Handle browser back button
+        $(window).on("popstate", function (e) {
+            const state = e.originalEvent.state;
+
+            if (state && state.sysPassHistory) {
+                log.info("popstate:back");
+
+                // Prevent default browser navigation
+                e.preventDefault();
+
+                // Get the history entry from our custom history
+                if (sysPassApp.requests.history.length() > 0) {
+                    const lastHistory = sysPassApp.requests.history.del();
+
+                    if (!lastHistory.hasOwnProperty('data')) {
+                        lastHistory.data = {sk: sysPassApp.sk.get()};
+                    } else {
+                        lastHistory.data.sk = sysPassApp.sk.get();
+                    }
+
+                    sysPassApp.requests.getActionCall(lastHistory, lastHistory.callback);
+                }
+            }
+        });
     };
 
     /**

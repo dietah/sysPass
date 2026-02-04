@@ -78,6 +78,18 @@ sysPass.Requests = function (sysPassApp) {
                 _history.splice(0, 10);
             }
 
+            // Integrate with browser history API
+            try {
+                const state = {
+                    sysPassHistory: true,
+                    historyIndex: _history.length - 1,
+                    hash: hash
+                };
+                window.history.pushState(state, "", window.location.href);
+            } catch (e) {
+                log.error("Error pushing browser history state: " + e.message);
+            }
+
             return _history;
         },
         del: function () {
