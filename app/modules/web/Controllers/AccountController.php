@@ -149,7 +149,11 @@ final class AccountController extends ControllerBase implements CrudControllerIn
     public function viewAction($id)
     {
         try {
-            $this->checkSecurityToken($this->previousSk, $this->request);
+            // Only check security token for AJAX requests
+            // Direct links (from redirect after login) should work without token
+            if ($this->isAjax) {
+                $this->checkSecurityToken($this->previousSk, $this->request);
+            }
 
             $this->view->addTemplate('account');
 
