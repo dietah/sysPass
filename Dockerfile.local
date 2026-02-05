@@ -1,0 +1,81 @@
+#
+# Local Development Dockerfile for sysPass
+# Uses local code instead of cloning from GitHub
+#
+
+FROM composer:2.0 as bootstrap
+
+# Build argument for composer extensions
+ARG COMPOSER_EXTENSIONS="syspass/plugin-authenticator:^v2.2"
+ENV COMPOSER_EXTENSIONS=${COMPOSER_EXTENSIONS}
+
+WORKDIR /app
+
+# Copy local sysPass code
+COPY . /app/
+
+# Install dependencies (including dev dependencies for the extension installer)
+RUN composer install \
+    --ignore-platform-reqs \
+    --no-interaction \
+    --prefer-dist
+
+# Install the Authenticator plugin directly
+RUN composer require syspass/plugin-authenticator:^v2.2 \
+    --ignore-platform-reqs \
+    --no-interaction \
+    --prefer-dist || echo "Plugin install skipped"
+
+# Optimize autoloader
+RUN composer dump-autoload --optimize
+
+FROM php:7.4-apache as app
+
+LABEL maintainer=local version=3.2.11-bm php=7.4
+
+RUN apt-get update \
+	&& apt-get install -y \
+    locales \
+    locales-all \
+    git \
+    libicu-dev \
+    libldb-dev \
+    libldap2-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
+    libxpm-dev \
+    zlib1g-dev \
+    unzip \
+	&& apt-get clean \
+	&& rm -r /var/lib/apt/lists/*
+
+RUN docker-php-ext-configure gd --enable-gd --with-webp --with-jpeg \
+    --with-xpm --with-freetype && \
+    docker-php-ext-install -j$(nproc) ldap intl gettext pdo_mysql opcache gd && \
+    docker-php-ext-enable ldap intl pdo_mysql && \
+    a2enmod rewrite ssl
+
+ENV SYSPASS_VERSION="syspass:3.2.11-bm"
+
+WORKDIR /var/www/html
+
+# Copy sysPass from local build to document root
+COPY --from=bootstrap /app/ /var/www/html/
+
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && mkdir -p /var/www/html/app/config \
+    && mkdir -p /var/www/html/app/backup \
+    && mkdir -p /var/www/html/app/cache \
+    && mkdir -p /var/www/html/app/temp \
+    && chown -R www-data:www-data /var/www/html/app
+
+# Configure Apache to allow .htaccess
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
+EXPOSE 80 443
+
+CMD ["apache2-foreground"]

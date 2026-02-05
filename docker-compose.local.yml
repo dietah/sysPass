@@ -1,0 +1,51 @@
+services:
+  syspass-db:
+    image: mariadb:10.5
+    container_name: syspass-db-local
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: syspass_root_password
+      MYSQL_DATABASE: syspass
+      MYSQL_USER: syspass
+      MYSQL_PASSWORD: syspass_password
+    volumes:
+      - syspass-db-data:/var/lib/mysql
+    networks:
+      - syspass-network
+
+  syspass:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+      args:
+        COMPOSER_EXTENSIONS: "syspass/plugin-authenticator:^v2.2"
+    container_name: syspass-local
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      # Set the Docker version to display
+      SYSPASS_VERSION: "syspass:3.2.11-bm"
+      # Database configuration
+      MYSQL_HOST: syspass-db
+      MYSQL_DATABASE: syspass
+      MYSQL_USER: syspass
+      MYSQL_PASSWORD: syspass_password
+    volumes:
+      # Persistent data only
+      - syspass-config:/var/www/html/app/config
+      - syspass-backup:/var/www/html/app/backup
+    depends_on:
+      - syspass-db
+    networks:
+      - syspass-network
+
+volumes:
+  syspass-db-data:
+  syspass-config:
+  syspass-backup:
+
+networks:
+  syspass-network:
+    driver: bridge
