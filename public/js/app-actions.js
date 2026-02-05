@@ -631,6 +631,26 @@ sysPass.Actions = function (log) {
                 }
             });
         },
+        twofa: {
+            check: function ($obj) {
+                log.info("twofa:check");
+
+                const opts = sysPassApp.requests.getRequestOpts();
+                opts.url = sysPassApp.util.getUrl(ajaxUrl.entrypoint, {r: $obj.data("action-route")});
+                opts.data = $obj.serialize();
+
+                sysPassApp.requests.getActionCall(opts, function (json) {
+                    if (json.status === 0) {
+                        sysPassApp.util.redirect(json.data.url);
+                    } else {
+                        sysPassApp.msg.out(json);
+                        
+                        // Re-focus the pin field after error
+                        $("#pin").val("").focus();
+                    }
+                });
+            }
+        },
         install: function ($obj) {
             log.info("main:install");
 

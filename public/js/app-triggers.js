@@ -233,6 +233,17 @@ sysPass.Triggers = function (log) {
             } else {
                 sysPassApp.util.focus($(this));
             }
+
+            // Auto-focus 2FA PIN field if present (global check)
+            const $pinInput = $("#pin");
+            const $twoFaForm = $("#frmLogin2fa");
+            
+            if ($pinInput.length > 0 && $twoFaForm.length > 0) {
+                log.info("2FA form detected, auto-focusing PIN field");
+                setTimeout(function() {
+                    $pinInput.focus();
+                }, 100);
+            }
         });
 
         // Handle browser back button
@@ -377,6 +388,15 @@ sysPass.Triggers = function (log) {
                 sysPassApp.actions.main.login($frmLogin);
             }
         },
+        authenticatorlogin: function () {
+            log.info("views:authenticatorlogin");
+
+            // Auto-focus the 2FA pin input field
+            const $pinInput = $("#pin");
+            if ($pinInput.length > 0) {
+                $pinInput.focus();
+            }
+        },
         userpassreset: function () {
             log.info("views:userpassreset");
 
@@ -405,6 +425,17 @@ sysPass.Triggers = function (log) {
             initializeTags($container);
 
             sysPassApp.triggers.updateFormHash($container);
+
+            // Auto-focus 2FA PIN field if present (runs on every page load)
+            const $pinInput = $("#pin");
+            const $twoFaForm = $("#frmLogin2fa");
+            
+            if ($pinInput.length > 0 && $twoFaForm.length > 0) {
+                log.info("2FA form detected in common view, auto-focusing PIN field");
+                setTimeout(function() {
+                    $pinInput.focus();
+                }, 150);
+            }
         },
         datatabs: function () {
             log.info("views:datatabs");

@@ -111,13 +111,13 @@ final class ResourceController extends SimpleControllerBase
                     ->setBase(PUBLIC_PATH . DIRECTORY_SEPARATOR . 'js');
 
                 $this->minify->addFiles([
-                    'app.min.js',
-                    'app-config.min.js',
-                    'app-triggers.min.js',
-                    'app-actions.min.js',
-                    'app-requests.min.js',
-                    'app-util.min.js',
-                    'app-main.min.js'], false);
+                    'app.js',
+                    'app-config.js',
+                    'app-triggers.js',
+                    'app-actions.js',
+                    'app-requests.js',
+                    'app-util.js',
+                    'app-main.js'], false);
             }
 
             $this->minify->getMinified();
